@@ -10,7 +10,7 @@ mod vec3;
 
 fn compute_ray_color(ray: &Ray) -> Color {
     let unit_direction = Vec3::unit_vec(&ray.dir);
-    let a = 0.5f64 * (unit_direction.x + 1f64);  // interpolation variable
+    let a = 0.5f64 * (unit_direction.y + 1f64);  // interpolation variable
     Color::new(1f64, 1f64, 1f64)*(1f64-a) + Color::new(0.5f64, 0.7f64, 1f64)*a
 }
 
@@ -45,7 +45,7 @@ fn main() {
     let viewport_v = Vec3::new(0f64, -viewport_height, 0f64);
 
     let pixel_delta_u = viewport_u / (image_width as f64);
-    let pixel_delta_v = viewport_u / (image_height as f64);
+    let pixel_delta_v = viewport_v / (image_height as f64);
 
     // Upper left pixel
     let viewport_upper_left = camera_center + Vec3::new(0f64, 0f64, -focal_length) - (viewport_u / 2f64) - (viewport_v / 2f64);

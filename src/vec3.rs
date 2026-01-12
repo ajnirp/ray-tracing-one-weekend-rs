@@ -9,28 +9,9 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    // Static ctor
     pub fn new(x: f64, y: f64, z: f64) -> Self { Vec3 { x: x, y: y, z: z, } }
 
-    // Instance methods
-    pub fn neg(&self) -> Self { Vec3 { x: -self.x, y: -self.y, z: -self.z } }
-
-    pub fn add(&mut self, other: &Self) {
-        self.x += other.x;
-        self.y += other.y;
-        self.z += other.z;
-    }
-
-    pub fn scale(&mut self, scalar: f64) {
-        self.x *= scalar;
-        self.y *= scalar;
-        self.z *= scalar;
-    }
-
-    // does not handle division by zero
-    pub fn scale_inv(&mut self, scalar: f64) {
-        self.scale(1f64 / scalar);
-    }
+    // Negation, scaling self by a scalar, inverse scaling not yet implemented
 
     pub fn len_sq(&self) -> f64 {
         self.x*self.x + self.y*self.y + self.z*self.z
