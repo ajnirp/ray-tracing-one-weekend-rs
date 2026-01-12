@@ -1,18 +1,22 @@
-In PowerShell:
+In PowerShell, to build:
 
 ```shell
 cargo build --release
+```
 
+To run, don't run this
+
+```shell
 # .\target\release\ray-tracing.exe <-- BAD, don't do this. It sets the encoding to UTF-16
+```
 
-# See https://github.com/RayTracing/raytracing.github.io/discussions/1114#discussioncomment-8314508 for details
+See [here](https://github.com/RayTracing/raytracing.github.io/discussions/1114#discussioncomment-8314508) for details. Instead, do this:
 
-# Instead, do this:
-
+```shell
 .\target\release\ray-tracing.exe | Set-Content img\a.ppm -encoding String
 ```
 
-To compare two PPM files in PowerShell:
+To compare two PPM files:
 
 ```shell
 fc.exe img\a.ppm img\b.ppm
