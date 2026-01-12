@@ -5,7 +5,9 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 mod color;
+mod hit;
 mod ray;
+mod sphere;
 mod vec3;
 
 fn compute_ray_color(ray: &Ray) -> Color {
