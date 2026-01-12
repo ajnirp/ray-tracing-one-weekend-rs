@@ -26,13 +26,13 @@ fn compute_ray_color(ray: &Ray) -> Color {
 // intersects the sphere of radius `radius` centered at `center`.
 fn hit_sphere(center: &Vec3, radius: f64, ray: &Ray) -> f64 {
     let oc = *center - ray.orig;
-    let a = ray.dir.dot(&ray.dir);
-    let b = ray.dir.dot(&oc) * -2f64;
-    let c = oc.dot(&oc) - radius*radius;
-    let discriminant = b*b - 4f64*a*c;
+    let a = ray.dir.len_sq();
+    let h = ray.dir.dot(&oc);
+    let c = oc.len_sq() - radius*radius;
+    let discriminant = h*h - a*c;
     
     if discriminant < 0f64 { -1f64 }
-    else { (-b - discriminant.sqrt()) / (2f64*a) }
+    else { (h - discriminant.sqrt()) / a }
 }
 
 // Computes the image height and ensures that it's at least 1.
@@ -76,7 +76,10 @@ fn main() {
     print!("P3\n{} {}\n255\n", image_width, image_height);
 
     for col in 0..image_height {
-        eprintln!("Scanlines remaining: {}", image_height - col);
+        let scanlines_remaining = image_height - col;
+        if scanlines_remaining % 10u32 == 0 {
+            eprintln!("Scanlines remaining: {}", image_height - col);
+        }
         for row in 0..image_width {
             let pixel_center = pixel_upper_left_loc + (pixel_delta_u * row as f64) + (pixel_delta_v * col as f64);
             let ray = Ray::new(camera_center, pixel_center - camera_center);
