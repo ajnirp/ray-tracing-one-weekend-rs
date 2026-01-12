@@ -9,9 +9,30 @@ mod ray;
 mod vec3;
 
 fn compute_ray_color(ray: &Ray) -> Color {
+    let sphere_center = Vec3::new(0f64, 0f64, -1f64);
+    let t = hit_sphere(&sphere_center, 0.5f64, &ray);
+    if t > 0f64 {
+        let normal = Vec3::unit_vec(&(ray.at(t) - sphere_center));
+        // Attenuate by 0.5 to prevent blowing out the whites
+        return Color::new(normal.x + 1f64, normal.y + 1f64, normal.z + 1f64) * 0.5f64;
+    }
+
     let unit_direction = Vec3::unit_vec(&ray.dir);
     let a = 0.5f64 * (unit_direction.y + 1f64);  // interpolation variable
     Color::new(1f64, 1f64, 1f64)*(1f64-a) + Color::new(0.5f64, 0.7f64, 1f64)*a
+}
+
+// Returns the smallest value of the ray's parameteric variable t for which the ray
+// intersects the sphere of radius `radius` centered at `center`.
+fn hit_sphere(center: &Vec3, radius: f64, ray: &Ray) -> f64 {
+    let oc = *center - ray.orig;
+    let a = ray.dir.dot(&ray.dir);
+    let b = ray.dir.dot(&oc) * -2f64;
+    let c = oc.dot(&oc) - radius*radius;
+    let discriminant = b*b - 4f64*a*c;
+    
+    if discriminant < 0f64 { -1f64 }
+    else { (-b - discriminant.sqrt()) / (2f64*a) }
 }
 
 // Computes the image height and ensures that it's at least 1.
