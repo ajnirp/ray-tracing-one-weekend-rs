@@ -7,6 +7,15 @@ pub struct Sphere {
     radius: f64,
 }
 
+impl Sphere {
+    pub fn new(center: Vec3, radius: f64) -> Self {
+        Self {
+            center: center,
+            radius: radius,
+        }
+    }
+}
+
 impl Hit for Sphere {
     fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
         let oc = self.center - ray.orig;
