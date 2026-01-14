@@ -39,7 +39,7 @@ impl ops::Add for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn add(self, rhs: Self) -> Self {
+    fn add(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -48,20 +48,11 @@ impl ops::Add for Vec3 {
     }
 }
 
-impl ops::Add<&Self> for Vec3 {
-    type Output = Self;
-
-    #[inline]
-    fn add(self, rhs: &Self) -> Self {
-        self.add(*rhs)
-    }
-}
-
 impl ops::Sub for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn sub(self, rhs: Self) -> Self {
+    fn sub(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -74,15 +65,28 @@ impl ops::Sub<&Self> for Vec3 {
     type Output = Self;
 
     #[inline]
-    fn sub(self, rhs: &Self) -> Self {
+    fn sub(self, rhs: &Self) -> Self::Output {
         self.sub(*rhs)
+    }
+}
+
+impl ops::Neg for Vec3 {
+    type Output = Self;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Self {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
     }
 }
 
 impl ops::Mul<f64> for Vec3 {
     type Output = Self;
 
-    fn mul(self, rhs: f64) -> Self {
+    fn mul(self, rhs: f64) -> Self::Output {
         Vec3 {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -94,7 +98,7 @@ impl ops::Mul<f64> for Vec3 {
 impl ops::Div<f64> for Vec3 {
     type Output = Self;
 
-    fn div(self, rhs: f64) -> Self {
+    fn div(self, rhs: f64) -> Self::Output {
         if rhs == 0f64 {
             panic!("Dividing vector by zero");
         }
