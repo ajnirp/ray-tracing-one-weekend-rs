@@ -14,6 +14,7 @@ mod hit;
 mod hittable_list;
 mod ray;
 mod sphere;
+mod util;
 mod vec3;
 
 fn compute_ray_color(ray: &Ray, world: &HittableList) -> Color {
