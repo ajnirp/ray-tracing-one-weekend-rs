@@ -1,8 +1,9 @@
 // A trait for objects that can be hit. I went with "Hit" instead of "Hittable"
 // to follow the pattern of traits being named using verbs like "Debug, Clone, Copy, Add" etc.
 
-use crate::vec3::Vec3;
+use crate::interval::Interval;
 use crate::ray::Ray;
+use crate::vec3::Vec3;
 
 pub struct HitRecord {
     pub point: Vec3,
@@ -27,5 +28,5 @@ impl HitRecord {
 
 pub trait Hit {
     // Returns Some(HitRecord) only if the ray hits the object, else None.
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, ray_t: &Interval) -> Option<HitRecord>;
 }

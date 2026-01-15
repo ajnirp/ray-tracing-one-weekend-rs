@@ -3,6 +3,7 @@
 use crate::color::{color_to_string, Color};
 use crate::hit::Hit;
 use crate::hittable_list::HittableList;
+use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::vec3::Vec3;
@@ -12,13 +13,14 @@ use std::rc::Rc;
 mod color;
 mod hit;
 mod hittable_list;
+mod interval;
 mod ray;
 mod sphere;
 mod util;
 mod vec3;
 
 fn compute_ray_color(ray: &Ray, world: &HittableList) -> Color {
-    match world.hit(&ray, 0f64, f64::MAX) {
+    match world.hit(&ray, &Interval::new(0f64, f64::MAX)) {
         Some(hit_record) => {
             (hit_record.normal + Color::new(1f64, 1f64, 1f64)) * 0.5f64
         },
