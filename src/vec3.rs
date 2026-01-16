@@ -27,6 +27,10 @@ impl Vec3 {
     pub fn unit_vec(&self) -> Self {
         *self / (self.len())
     }
+
+    pub fn x(&self) -> f64 { self.x }
+    pub fn y(&self) -> f64 { self.y }
+    pub fn z(&self) -> f64 { self.z }
 }
 
 impl fmt::Display for Vec3 {

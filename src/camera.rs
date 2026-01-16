@@ -3,6 +3,7 @@ use crate::hit::Hit;
 use crate::hittable_list::HittableList;
 use crate::interval::Interval;
 use crate::ray::Ray;
+use crate::util::random_f64;
 use crate::vec3::Vec3;
 
 pub struct Camera {
@@ -12,6 +13,7 @@ pub struct Camera {
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
     pixel_upper_left_loc: Vec3,
+    // pixel_samples_scale: f64,
 }
 
 fn compute_ray_color(ray: &Ray, world: &HittableList) -> Color {
@@ -42,7 +44,12 @@ fn actual_aspect_ratio(image_width: u32, image_height: u32) -> f64 {
     (image_width as f64) / (image_height as f64)
 }
 
+fn sample_square() -> Vec3 {
+    Vec3::new(random_f64() - 0.5f64, random_f64() - 0.5f64, 0f64)
+}
+
 impl Camera {
+    // pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32) -> Self {
     pub fn new(aspect_ratio: f64, image_width: u32) -> Self {
         let image_height = compute_image_height(image_width, aspect_ratio);
         
@@ -58,8 +65,8 @@ impl Camera {
         let viewport_v = Vec3::new(0f64, -viewport_height, 0f64);
 
         // Horizontal and vertical delta vectors from pixel to pixel
-        let pixel_delta_u = viewport_u / (image_width as f64);
-        let pixel_delta_v = viewport_v / (image_height as f64);
+        let pixel_delta_u = viewport_u / (image_width as f64);  // horizontal / column
+        let pixel_delta_v = viewport_v / (image_height as f64);  // vertical / row
 
         // Location of the upper left pixel
         let viewport_upper_left = camera_center + Vec3::new(0f64, 0f64, -focal_length) - (viewport_u / 2f64) - (viewport_v / 2f64);
@@ -72,19 +79,27 @@ impl Camera {
             pixel_delta_u: pixel_delta_u,
             pixel_delta_v: pixel_delta_v,
             pixel_upper_left_loc: pixel_upper_left_loc,
+            // pixel_samples_scale: 1f64 / (samples_per_pixel as f64),
         }
     }
+
+    // fn get_ray(&self, row: u32, col: u32) {
+    //     let offset = sample_square();
+    //     let row_f64 = row as f64;
+    //     let col_f64 = col as f64;
+    //     let pixel_sample = self.pixel_upper_left_loc + (self.pixel_delta_u * (offset.x() + row_f64)) + (self.pixel_delta_v * (offset.y() + col_f64));
+    // }
 
     pub fn render(&self, world: &HittableList) {
         print!("P3\n{} {}\n255\n", self.image_width, self.image_height);
 
-        for col in 0..self.image_height {
-            let scanlines_remaining = self.image_height - col;
+        for row in 0..self.image_height {
+            let scanlines_remaining = self.image_height - row;
             if scanlines_remaining % 10u32 == 0 {
-                eprintln!("Scanlines remaining: {}", self.image_height - col);
+                eprintln!("Scanlines remaining: {}", self.image_height - row);
             }
-            for row in 0..self.image_width {
-                let pixel_center = self.pixel_upper_left_loc + (self.pixel_delta_u * row as f64) + (self.pixel_delta_v * col as f64);
+            for col in 0..self.image_width {
+                let pixel_center = self.pixel_upper_left_loc + (self.pixel_delta_u * col as f64) + (self.pixel_delta_v * row as f64);
                 let ray = Ray::new(self.center, pixel_center - self.center);
                 let pixel_color = compute_ray_color(&ray, &world);
                 print!("{}", color_to_string(&pixel_color));
