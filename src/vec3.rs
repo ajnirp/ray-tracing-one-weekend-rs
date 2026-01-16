@@ -52,6 +52,17 @@ impl ops::Add for Vec3 {
     }
 }
 
+impl ops::AddAssign for Vec3 {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        *self = Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }        
+    }
+}
+
 impl ops::Sub for Vec3 {
     type Output = Self;
 
@@ -107,6 +118,16 @@ impl ops::Div<f64> for Vec3 {
             panic!("Dividing vector by zero");
         }
         Vec3 {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+}
+
+impl ops::DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, rhs: f64) {
+        *self = Self {
             x: self.x / rhs,
             y: self.y / rhs,
             z: self.z / rhs,
