@@ -6,7 +6,6 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 pub struct Camera {
-    aspect_ratio: f64,
     image_width: u32,
     image_height: u32,
     center: Vec3,
@@ -67,7 +66,6 @@ impl Camera {
         let pixel_upper_left_loc = viewport_upper_left + ((pixel_delta_u + pixel_delta_v) * 0.5f64);
 
         Self {
-            aspect_ratio: aspect_ratio,
             image_width: image_width,
             image_height: image_height,
             center: center,
