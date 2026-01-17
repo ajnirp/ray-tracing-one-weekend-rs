@@ -42,15 +42,14 @@ impl Vec3 {
     // sampling to generate a vector that lies on or within the unit sphere.
     // Then normalizes it. Why not just call random() and then normalize it?
     // Because that wouldn't be a uniform distribution. 
-    fn uniform_random_unit_vec() -> Self {
+    pub fn uniform_random_unit_vec() -> Self {
         loop {
             let result = Vec3::random();
             // Also reject vectors very close to the origin to prevent rounding
             // towards zero and then dividing by zero.
-            if result.len_sq() < 1e-60 || result.len_sq() > 1.0 {
-                continue
+            if result.len_sq() > 1e-60 && result.len_sq() <= 1.0 {
+                return result / result.len();
             }
-            return result / result.len();
         }
     }
 
