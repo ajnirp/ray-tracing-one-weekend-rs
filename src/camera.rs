@@ -6,6 +6,8 @@ use crate::ray::Ray;
 use crate::util::random_f64;
 use crate::vec3::Vec3;
 
+const MIN_T_TO_PREVENT_SHADOW_ACNE: f64 = 0.0001;
+
 pub struct Camera {
     image_width: u32,
     image_height: u32,
@@ -86,7 +88,7 @@ impl Camera {
         if depth == self.max_depth {
             return Color::new(0.0, 0.0, 0.0);
         }
-        match world.hit(&ray, &Interval::new(0.0, f64::MAX)) {
+        match world.hit(&ray, &Interval::new(MIN_T_TO_PREVENT_SHADOW_ACNE, f64::MAX)) {
             Some(hit_record) => {
                 let direction = Vec3::uniform_random_unit_vec_on_hemisphere(hit_record.normal());
                 return self.compute_ray_color(&Ray::new(*hit_record.point(), direction), depth+1, world) * 0.5;
