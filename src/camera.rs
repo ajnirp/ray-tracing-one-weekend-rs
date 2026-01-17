@@ -14,23 +14,7 @@ pub struct Camera {
     pixel_delta_v: Vec3,
     pixel_upper_left_loc: Vec3,
     samples_per_pixel: u32,
-}
-
-// Computes the color produced by a ray hitting the world. If it doesn't, just
-// render the background.
-fn compute_ray_color(ray: &Ray, world: &HittableList) -> Color {
-    match world.hit(&ray, &Interval::new(0f64, f64::MAX)) {
-        Some(hit_record) => {
-            // (*hit_record.normal() + Color::new(1f64, 1f64, 1f64)) * 0.5f64
-            let direction = Vec3::uniform_random_unit_vec_on_hemisphere(hit_record.normal());
-            return compute_ray_color(&Ray::new(*hit_record.point(), direction), world) * 0.5;
-        },
-        None => {
-            let unit_direction = Vec3::unit_vec(&ray.dir);
-            let a = 0.5 * (unit_direction.y() + 1.0);  // interpolation variable
-            Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
-        }
-    }
+    max_depth: u32,  // guards against stack overflow from reflected rays
 }
 
 // Computes the image height and ensures that it's at least 1.
@@ -54,7 +38,7 @@ fn sample_square() -> Vec3 {
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32) -> Self {
+    pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32, max_depth: u32) -> Self {
         let image_height = compute_image_height(image_width, aspect_ratio);
         
         let focal_length = 1f64;
@@ -84,6 +68,7 @@ impl Camera {
             pixel_delta_v: pixel_delta_v,
             pixel_upper_left_loc: pixel_upper_left_loc,
             samples_per_pixel: samples_per_pixel,
+            max_depth: max_depth,
         }
     }
 
@@ -93,6 +78,25 @@ impl Camera {
         let col_f64 = col as f64;
         let pixel_sample = self.pixel_upper_left_loc + (self.pixel_delta_u * (offset.x() + col_f64)) + (self.pixel_delta_v * (offset.y() + row_f64));
         Ray::new(self.center, pixel_sample - self.center)
+    }
+
+    // Computes the color produced by a ray hitting the world. If it doesn't, just
+    // render the background.
+    fn compute_ray_color(&self, ray: &Ray, depth: u32, world: &HittableList) -> Color {
+        if depth == self.max_depth {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+        match world.hit(&ray, &Interval::new(0.0, f64::MAX)) {
+            Some(hit_record) => {
+                let direction = Vec3::uniform_random_unit_vec_on_hemisphere(hit_record.normal());
+                return self.compute_ray_color(&Ray::new(*hit_record.point(), direction), depth+1, world) * 0.5;
+            },
+            None => {
+                let unit_direction = Vec3::unit_vec(&ray.dir);
+                let a = 0.5 * (unit_direction.y() + 1.0);  // interpolation variable
+                Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
+            }
+        }
     }
 
     pub fn render(&self, world: &HittableList) {
@@ -107,7 +111,7 @@ impl Camera {
                 let mut pixel_color = Color::new(0f64, 0f64, 0f64);
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(row, col);
-                    pixel_color += compute_ray_color(&ray, world);
+                    pixel_color += self.compute_ray_color(&ray, 0, world);
                 }
                 pixel_color /= self.samples_per_pixel as f64;
                 print!("{}", color_to_string(&pixel_color));
