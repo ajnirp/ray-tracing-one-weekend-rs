@@ -1,11 +1,13 @@
 use std::fmt;
 use std::ops;
 
+use crate::util::random_f64;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+    x: f64,
+    y: f64,
+    z: f64,
 }
 
 impl Vec3 {
@@ -31,6 +33,34 @@ impl Vec3 {
     pub fn x(&self) -> f64 { self.x }
     pub fn y(&self) -> f64 { self.y }
     pub fn z(&self) -> f64 { self.z }
+
+    pub fn random() -> Self {
+        Vec3::new(random_f64(), random_f64(), random_f64())
+    }
+
+    // Generates a unit 3D vector from the uniform distribution. Uses rejection
+    // sampling to generate a vector that lies on or within the unit sphere.
+    // Then normalizes it. Why not just call random() and then normalize it?
+    // Because that wouldn't be a uniform distribution. 
+    fn uniform_random_unit_vec() -> Self {
+        loop {
+            let result = Vec3::random();
+            // Also reject vectors very close to the origin to prevent rounding
+            // towards zero and then dividing by zero.
+            if result.len_sq() < 1e-60 || result.len_sq() > 1.0 {
+                continue
+            }
+            return result / result.len();
+        }
+    }
+
+    // Generates a unit 3D vector from the uniform distribution that lies on the
+    // same hemisphere as the point of contact of the normal vector with the
+    // sphere.
+    pub fn uniform_random_unit_vec_on_hemisphere(normal: &Vec3) -> Self {
+        let result = Vec3::uniform_random_unit_vec();
+        if result.dot(normal) > 0.0 { result } else { -result }
+    }
 }
 
 impl fmt::Display for Vec3 {

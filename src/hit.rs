@@ -6,9 +6,9 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 pub struct HitRecord {
-    pub point: Vec3,
-    pub normal: Vec3,
-    pub t: f64,
+    point: Vec3,
+    normal: Vec3,
+    t: f64,
     pub front_face: bool,
 }
 
@@ -24,6 +24,10 @@ impl HitRecord {
             normal: if front_face { *outward_normal } else { -*outward_normal }
         }
     }
+
+    pub fn point(&self) -> &Vec3 { &self.point }
+    pub fn normal(&self) -> &Vec3 { &self.normal }
+    pub fn t(&self) -> f64 { self.t }
 }
 
 pub trait Hit {

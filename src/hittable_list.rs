@@ -28,7 +28,7 @@ impl Hit for HittableList {
         for object in self.objects.iter() {
             match object.hit(ray, &Interval::new(ray_t.min(), closest_so_far)) {
                 Some(hit) => {
-                    closest_so_far = hit.t;
+                    closest_so_far = hit.t();
                     hit_result = Some(hit);
                 },
                 None => (),

@@ -16,15 +16,19 @@ pub struct Camera {
     samples_per_pixel: u32,
 }
 
+// Computes the color produced by a ray hitting the world. If it doesn't, just
+// render the background.
 fn compute_ray_color(ray: &Ray, world: &HittableList) -> Color {
     match world.hit(&ray, &Interval::new(0f64, f64::MAX)) {
         Some(hit_record) => {
-            (hit_record.normal + Color::new(1f64, 1f64, 1f64)) * 0.5f64
+            // (*hit_record.normal() + Color::new(1f64, 1f64, 1f64)) * 0.5f64
+            let direction = Vec3::uniform_random_unit_vec_on_hemisphere(hit_record.normal());
+            return compute_ray_color(&Ray::new(*hit_record.point(), direction), world) * 0.5;
         },
         None => {
             let unit_direction = Vec3::unit_vec(&ray.dir);
-            let a = 0.5f64 * (unit_direction.y + 1f64);  // interpolation variable
-            Color::new(1f64, 1f64, 1f64)*(1f64-a) + Color::new(0.5f64, 0.7f64, 1f64)*a
+            let a = 0.5 * (unit_direction.y() + 1.0);  // interpolation variable
+            Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
         }
     }
 }
