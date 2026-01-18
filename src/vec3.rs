@@ -176,7 +176,7 @@ impl ops::Div<f64> for Vec3 {
     type Output = Self;
 
     fn div(self, rhs: f64) -> Self::Output {
-        if rhs == 0f64 {
+        if rhs == 0.0 {
             panic!("Dividing vector by zero");
         }
         Vec3 {

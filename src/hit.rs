@@ -38,6 +38,6 @@ impl HitRecord {
 }
 
 pub trait Hit {
-    // Returns Some(HitRecord) only if the ray hits the object, else None.
+    // Returns Some(HitRecord) if the ray hits the object, else None.
     fn hit(&self, ray: &Ray, ray_t: &Interval) -> Option<HitRecord>;
 }

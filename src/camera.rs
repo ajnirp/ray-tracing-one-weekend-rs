@@ -36,7 +36,7 @@ fn actual_aspect_ratio(image_width: u32, image_height: u32) -> f64 {
 
 // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
 fn sample_square() -> Vec3 {
-    Vec3::new(random_f64() - 0.5f64, random_f64() - 0.5f64, 0f64)
+    Vec3::new(random_f64() - 0.5, random_f64() - 0.5, 0.0)
 }
 
 impl Camera {
@@ -76,9 +76,9 @@ impl Camera {
 
     fn get_ray(&self, row: u32, col: u32) -> Ray {
         let offset = sample_square();
-        let row_f64 = row as f64;
-        let col_f64 = col as f64;
-        let pixel_sample = self.pixel_upper_left_loc + (self.pixel_delta_u * (offset.x() + col_f64)) + (self.pixel_delta_v * (offset.y() + row_f64));
+        let row = row as f64;
+        let col = col as f64;
+        let pixel_sample = self.pixel_upper_left_loc + ((col + offset.x()) * self.pixel_delta_u) + ((row + offset.y()) * (self.pixel_delta_v));
         Ray::new(self.center, pixel_sample - self.center)
     }
 
@@ -102,7 +102,7 @@ impl Camera {
             None => {
                 let unit_direction = Vec3::unit_vec(ray.dir());
                 let a = 0.5 * (unit_direction.y() + 1.0);  // interpolation variable
-                Color::new(1.0, 1.0, 1.0)*(1.0-a) + a*Color::new(0.5, 0.7, 1.0)
+                (1.0-a)*Color::new(1.0, 1.0, 1.0) + a*Color::new(0.5, 0.7, 1.0)
             }
         }
     }

@@ -30,7 +30,7 @@ impl Hit for Sphere {
         let c = oc.len_sq() - self.radius*self.radius;
         
         let discriminant = h*h - a*c;
-        if discriminant < 0f64 {
+        if discriminant < 0.0 {
             return None;
         }
 
