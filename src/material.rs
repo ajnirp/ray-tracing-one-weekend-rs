@@ -59,7 +59,7 @@ impl Metal {
     pub fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
             albedo: albedo,
-            fuzz: fuzz,
+            fuzz: if fuzz < 1.0 { fuzz } else { 1.0 },
         }
     }
 }
