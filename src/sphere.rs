@@ -16,7 +16,7 @@ impl Sphere {
     pub fn new(center: Vec3, radius: f64, material: Rc<dyn Material>) -> Self {
         Self {
             center: center,
-            radius: radius,
+            radius: if radius < 0.0 { 0.0 } else { radius },
             material: material,
         }
     }

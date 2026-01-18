@@ -20,7 +20,7 @@ impl HitRecord {
     // Assumes outward normal is a unit vector. Updates the fields front_face and normal
     // based on the given ray and outward normal.
     pub fn new(point: &Vec3, ray: &Ray, t: f64, outward_normal: &Vec3, material: Rc<dyn Material>) -> Self {
-        let front_face = ray.dir().dot(outward_normal) < 0f64;
+        let front_face = ray.dir().dot(outward_normal) < 0.0;
         Self {
             point: *point,
             t: t,
