@@ -70,7 +70,7 @@ impl Material for Metal {
     fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> ScatterResult {
         let reflected = ray.dir().reflect(hit_record.normal());
         ScatterResult {
-            scattered: Ray::new(*ray.orig(), reflected),
+            scattered: Ray::new(*hit_record.point(), reflected),
             attenuation: self.albedo,
         }
     }

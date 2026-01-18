@@ -96,7 +96,7 @@ impl Camera {
             None => {
                 let unit_direction = Vec3::unit_vec(ray.dir());
                 let a = 0.5 * (unit_direction.y() + 1.0);  // interpolation variable
-                Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
+                Color::new(1.0, 1.0, 1.0)*(1.0-a) + a*Color::new(0.5, 0.7, 1.0)
             }
         }
     }
