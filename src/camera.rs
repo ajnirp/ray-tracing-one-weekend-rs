@@ -3,7 +3,7 @@ use crate::hit::Hit;
 use crate::hittable_list::HittableList;
 use crate::interval::Interval;
 use crate::ray::Ray;
-use crate::util::random_f64;
+use crate::util::random;
 use crate::vec3::Vec3;
 
 const MIN_T_TO_PREVENT_SHADOW_ACNE: f64 = 1e-3;
@@ -36,7 +36,7 @@ fn actual_aspect_ratio(image_width: u32, image_height: u32) -> f64 {
 
 // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
 fn sample_square() -> Vec3 {
-    Vec3::new(random_f64() - 0.5, random_f64() - 0.5, 0.0)
+    Vec3::new(random(-0.5, 0.5), random(-0.5, 0.5), 0.0)
 }
 
 impl Camera {
@@ -60,7 +60,7 @@ impl Camera {
 
         // Location of the upper left pixel
         let viewport_upper_left = camera_center + Vec3::new(0.0, 0.0, -focal_length) - (viewport_u / 2.0) - (viewport_v / 2.0);
-        let pixel_upper_left_loc = viewport_upper_left + (0.5*(pixel_delta_u + pixel_delta_v));
+        let pixel_upper_left_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
         Self {
             image_width: image_width,

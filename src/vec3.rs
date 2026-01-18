@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops;
 
-use crate::util::random_f64;
+use crate::util::random;
 
 const NEAR_ZERO_TOLERANCE: f64 = 1e-8;
 
@@ -42,31 +42,17 @@ impl Vec3 {
         *self - (2.0 * self.dot(unit_normal) * *unit_normal)
     }
 
-    pub fn random() -> Self {
-        Vec3::new(random_f64(), random_f64(), random_f64())
-    }
-
-    // Generates a unit 3D vector from the uniform distribution. Uses rejection
-    // sampling to generate a vector that lies on or within the unit sphere.
-    // Then normalizes it. Why not just call random() and then normalize it?
-    // Because that wouldn't be a uniform distribution. 
+    // Generates a unit 3D vector lying in the unit sphere. Uses rejection
+    // sampling to ensure uniform sampling.
     pub fn uniform_random_unit_vec() -> Self {
         loop {
-            let result = Vec3::random();
+            let result = Vec3::new(random(-1.0, 1.0), random(-1.0, 1.0), random(-1.0, 1.0));
             // Also reject vectors very close to the origin to prevent rounding
             // towards zero and then dividing by zero.
             if result.len_sq() > 1e-60 && result.len_sq() <= 1.0 {
                 return result / result.len();
             }
         }
-    }
-
-    // Generates a unit 3D vector from the uniform distribution that lies on the
-    // same hemisphere as the point of contact of the normal vector with the
-    // sphere.
-    pub fn uniform_random_unit_vec_on_hemisphere(normal: &Vec3) -> Self {
-        let result = Vec3::uniform_random_unit_vec();
-        if result.dot(normal) > 0.0 { result } else { -result }
     }
 
     pub fn is_near_zero(&self) -> bool {

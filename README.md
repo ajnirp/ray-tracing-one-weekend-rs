@@ -28,3 +28,7 @@ The output will be something like:
 Comparing files .\IMG\a.ppm and .\IMG\b.ppm
 FC: no differences encountered
 ```
+
+TODO:
+
+* pass a mutable reference to the RNG through the functions instead of initializing it inside the utility helper
