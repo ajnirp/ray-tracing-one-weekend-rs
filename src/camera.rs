@@ -43,24 +43,24 @@ impl Camera {
     pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32, max_depth: u32) -> Self {
         let image_height = compute_image_height(image_width, aspect_ratio);
         
-        let focal_length = 1f64;
-        let viewport_height = 2f64;
+        let focal_length = 1.0;
+        let viewport_height = 2.0;
         let viewport_width = viewport_height * actual_aspect_ratio(image_width, image_height);
-        let camera_center = Vec3::new(0f64, 0f64, 0f64);
+        let camera_center = Vec3::new(0.0, 0.0, 0.0);
 
-        let center = Vec3::new(0f64, 0f64, 0f64);
+        let center = Vec3::new(0.0, 0.0, 0.0);
 
         // Vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = Vec3::new(viewport_width, 0f64, 0f64);
-        let viewport_v = Vec3::new(0f64, -viewport_height, 0f64);
+        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
+        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
 
         // Horizontal and vertical delta vectors from pixel to pixel
         let pixel_delta_u = viewport_u / (image_width as f64);  // horizontal / column
         let pixel_delta_v = viewport_v / (image_height as f64);  // vertical / row
 
         // Location of the upper left pixel
-        let viewport_upper_left = camera_center + Vec3::new(0f64, 0f64, -focal_length) - (viewport_u / 2f64) - (viewport_v / 2f64);
-        let pixel_upper_left_loc = viewport_upper_left + ((pixel_delta_u + pixel_delta_v) * 0.5f64);
+        let viewport_upper_left = camera_center + Vec3::new(0.0, 0.0, -focal_length) - (viewport_u / 2.0) - (viewport_v / 2.0);
+        let pixel_upper_left_loc = viewport_upper_left + (0.5*(pixel_delta_u + pixel_delta_v));
 
         Self {
             image_width: image_width,
@@ -110,7 +110,7 @@ impl Camera {
                 eprintln!("Scanlines remaining: {}", self.image_height - row);
             }
             for col in 0..self.image_width {
-                let mut pixel_color = Color::new(0f64, 0f64, 0f64);
+                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(row, col);
                     pixel_color += self.compute_ray_color(&ray, 0, world);
