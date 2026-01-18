@@ -5,7 +5,7 @@ use crate::vec3::Vec3;
 
 pub struct ScatterResult {
     scattered: Ray,  // The scattered ray
-    attenuation: Color,  // How much the scattered ray should be attenuated
+    attenuation: Color,  // Brightness of the scattered ray relative to the incoming ray
 }
 
 impl ScatterResult {
@@ -15,7 +15,7 @@ impl ScatterResult {
 
 // A trait for material types to implement.
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> ScatterResult;
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult>;
 }
 
 pub struct Lambertian {
@@ -31,14 +31,10 @@ impl Lambertian {
             albedo: albedo,
         }
     }
-
-    pub fn albedo(&self) -> &Color { &self.albedo }
 }
 
 impl Material for Lambertian {
-    // TODO: at some point, we should change the return type to Option<ScatterResult>
-    // in order to deal with materials that scatter no light.
-    fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> ScatterResult {
+    fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
         let mut scatter_direction = *hit_record.normal() + Vec3::uniform_random_unit_vec();
 
         // Catch degenerate scatter directions. These result from uniformly sampled random unit vectors
@@ -47,31 +43,39 @@ impl Material for Lambertian {
             scatter_direction = *hit_record.normal();
         }
 
-        ScatterResult {
+        Some(ScatterResult {
             scattered: Ray::new(*hit_record.point(), scatter_direction),
             attenuation: self.albedo
-        }
+        })
     }
 }
 
 pub struct Metal {
     albedo: Color,
+    fuzz: f64,  // Used the randomize the direction of the reflected ray.
 }
 
 impl Metal {
-    pub fn new(albedo: Color) -> Self {
+    pub fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
             albedo: albedo,
+            fuzz: fuzz,
         }
     }
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> ScatterResult {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
         let reflected = ray.dir().reflect(hit_record.normal());
-        ScatterResult {
-            scattered: Ray::new(*hit_record.point(), reflected),
-            attenuation: self.albedo,
+        let fuzzed = reflected.unit_vec() + (self.fuzz * Vec3::uniform_random_unit_vec());
+        let scattered = Ray::new(*hit_record.point(), fuzzed);
+        if scattered.dir().dot(hit_record.normal()) > 0.0 {
+            Some(ScatterResult {
+                attenuation: self.albedo,
+                scattered: scattered,
+            })
+        } else {
+            None
         }
     }
 }
