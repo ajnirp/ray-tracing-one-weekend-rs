@@ -1,8 +1,8 @@
 use crate::vec3::Vec3;
 
 pub struct Ray {
-    pub orig: Vec3,
-    pub dir: Vec3,
+    orig: Vec3,
+    dir: Vec3,
 }
 
 impl Ray {
@@ -16,4 +16,7 @@ impl Ray {
     pub fn at(&self, t: f64) -> Vec3 {
         self.orig + (self.dir * t)
     }
+
+    pub fn orig(&self) -> &Vec3 { &self.orig }
+    pub fn dir(&self) -> &Vec3 { &self.dir }
 }

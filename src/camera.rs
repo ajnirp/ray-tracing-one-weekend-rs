@@ -91,12 +91,10 @@ impl Camera {
         match world.hit(&ray, &Interval::new(MIN_T_TO_PREVENT_SHADOW_ACNE, f64::MAX)) {
             Some(hit_record) => {
                 let scatter_result = hit_record.material().scatter(&ray, &hit_record);
-                // let direction = Vec3::uniform_random_unit_vec() + *hit_record.normal();
                 return *scatter_result.attenuation() * self.compute_ray_color(scatter_result.scattered(), depth+1, world);
-                // return self.compute_ray_color(&Ray::new(*hit_record.point(), direction), depth+1, world) * 0.5;
             },
             None => {
-                let unit_direction = Vec3::unit_vec(&ray.dir);
+                let unit_direction = Vec3::unit_vec(ray.dir());
                 let a = 0.5 * (unit_direction.y() + 1.0);  // interpolation variable
                 Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
             }

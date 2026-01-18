@@ -3,6 +3,8 @@ use std::ops;
 
 use crate::util::random_f64;
 
+const NEAR_ZERO_TOLERANCE: f64 = 1e-8;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec3 {
     x: f64,
@@ -34,6 +36,12 @@ impl Vec3 {
     pub fn y(&self) -> f64 { self.y }
     pub fn z(&self) -> f64 { self.z }
 
+    // Reflects a ray about a normal. Callers are responsible for ensuring that
+    // `unit_normal` is a unit vector.
+    pub fn reflect(&self, unit_normal: &Self) -> Self {
+        *self - (2.0 * self.dot(unit_normal) * *unit_normal)
+    }
+
     pub fn random() -> Self {
         Vec3::new(random_f64(), random_f64(), random_f64())
     }
@@ -59,6 +67,10 @@ impl Vec3 {
     pub fn uniform_random_unit_vec_on_hemisphere(normal: &Vec3) -> Self {
         let result = Vec3::uniform_random_unit_vec();
         if result.dot(normal) > 0.0 { result } else { -result }
+    }
+
+    pub fn is_near_zero(&self) -> bool {
+        self.x < NEAR_ZERO_TOLERANCE && self.y < NEAR_ZERO_TOLERANCE && self.z < NEAR_ZERO_TOLERANCE
     }
 }
 
@@ -149,6 +161,14 @@ impl ops::Mul<Vec3> for Vec3 {
             y: self.y * rhs.y,
             z: self.z * rhs.z,
         }
+    }
+}
+
+impl ops::Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        rhs * self
     }
 }
 

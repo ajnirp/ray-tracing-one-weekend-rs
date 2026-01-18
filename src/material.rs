@@ -4,11 +4,8 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 pub struct ScatterResult {
-    // The scattered ray.
-    scattered: Ray,
-
-    // How much the scattered ray should be attenuated.
-    attenuation: Color,
+    scattered: Ray,  // The scattered ray
+    attenuation: Color,  // How much the scattered ray should be attenuated
 }
 
 impl ScatterResult {
@@ -39,9 +36,42 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
+    // TODO: at some point, we should change the return type to Option<ScatterResult>
+    // in order to deal with materials that scatter no light.
     fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> ScatterResult {
-        let scatter_direction = *hit_record.normal() + Vec3::uniform_random_unit_vec();
-        let scattered_ray = Ray::new(*hit_record.point(), scatter_direction);
-        ScatterResult { scattered: scattered_ray, attenuation: *self.albedo() }
+        let mut scatter_direction = *hit_record.normal() + Vec3::uniform_random_unit_vec();
+
+        // Catch degenerate scatter directions. These result from uniformly sampled random unit vectors
+        // that exactly cancel out the normal unit vector at the hit point.
+        if scatter_direction.is_near_zero() {
+            scatter_direction = *hit_record.normal();
+        }
+
+        ScatterResult {
+            scattered: Ray::new(*hit_record.point(), scatter_direction),
+            attenuation: self.albedo
+        }
+    }
+}
+
+pub struct Metal {
+    albedo: Color,
+}
+
+impl Metal {
+    pub fn new(albedo: Color) -> Self {
+        Self {
+            albedo: albedo,
+        }
+    }
+}
+
+impl Material for Metal {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> ScatterResult {
+        let reflected = ray.dir().reflect(hit_record.normal());
+        ScatterResult {
+            scattered: Ray::new(*ray.orig(), reflected),
+            attenuation: self.albedo,
+        }
     }
 }
