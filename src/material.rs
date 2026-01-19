@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::hit::HitRecord;
 use crate::ray::Ray;
+use crate::util::random;
 use crate::vec3::Vec3;
 
 pub struct ScatterResult {
@@ -93,16 +94,25 @@ impl Dielectric {
             refractive_index: if refractive_index > 0.0 { refractive_index } else { 1.0 },
         }
     }
+
+    fn reflectance(cos: f64, refractive_index: f64) -> f64 {
+        // Use Schlick's approximation for reflectance.
+        let r0 = (1.0 - refractive_index) / (1.0 + refractive_index);
+        let r0 = r0*r0;
+        r0 + (1.0 - r0)*((1.0 - cos).powi(5))
+    }
 }
 
 impl Material for Dielectric {
     fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
         let relative_refractive_index = if hit_record.front_face() { 1.0 / self.refractive_index } else { self.refractive_index };
         let unit_direction = ray.dir().unit_vec();
-        let cos_theta = unit_direction.dot(hit_record.normal());
+        let cos_theta = -unit_direction.dot(hit_record.normal());
         let sin_theta = (1.0 - cos_theta*cos_theta).sqrt();
+
         let cannot_refract = relative_refractive_index * sin_theta > 1.0;
-        let direction = if cannot_refract {
+
+        let direction = if cannot_refract || Dielectric::reflectance(cos_theta, relative_refractive_index) > random(0.0, 1.0) {
             unit_direction.reflect(hit_record.normal())
         } else {
             Vec3::refract(&unit_direction, hit_record.normal(), relative_refractive_index)
