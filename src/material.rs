@@ -98,9 +98,17 @@ impl Dielectric {
 impl Material for Dielectric {
     fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
         let relative_refractive_index = if hit_record.front_face() { 1.0 / self.refractive_index } else { self.refractive_index };
-        let refracted = Vec3::refract(&ray.dir().unit_vec(), hit_record.normal(), relative_refractive_index);
+        let unit_direction = ray.dir().unit_vec();
+        let cos_theta = unit_direction.dot(hit_record.normal());
+        let sin_theta = (1.0 - cos_theta*cos_theta).sqrt();
+        let cannot_refract = relative_refractive_index * sin_theta > 1.0;
+        let direction = if cannot_refract {
+            unit_direction.reflect(hit_record.normal())
+        } else {
+            Vec3::refract(&unit_direction, hit_record.normal(), relative_refractive_index)
+        };
         Some(ScatterResult {
-            scattered: Ray::new(*hit_record.point(), refracted),
+            scattered: Ray::new(*hit_record.point(), direction),
             attenuation: Color::new(1.0, 1.0, 1.0),
         })
     }

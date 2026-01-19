@@ -47,7 +47,9 @@ impl Vec3 {
     // Ray travels from the first medium to the second medium (e.g. air to glass).
     // `relative_refractive_index` = refractive index of first / refractive index of second.
     pub fn refract(ray: &Self, normal: &Self, relative_refractive_index: f64) -> Self {
-        let cos_theta = -ray.dot(normal).min(1.0);
+        // The reference implementation uses 1.0 here, but if both are normalized this
+        // shouldn't be needed. I left it out.
+        let cos_theta = -ray.dot(normal);
         // Component of the refracted ray that is perpendicular to the normal.
         let out_perpendicular = relative_refractive_index * (*ray + cos_theta * *normal);
         // Component of the out ray that is parallel to the normal.
