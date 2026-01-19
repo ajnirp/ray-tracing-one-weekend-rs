@@ -36,10 +36,23 @@ impl Vec3 {
     pub fn y(&self) -> f64 { self.y }
     pub fn z(&self) -> f64 { self.z }
 
-    // Reflects a ray about a normal. Callers are responsible for ensuring that
-    // `unit_normal` is a unit vector.
+    // Reflects a ray (whose direction is `self`) about a normal.
+    // Callers are responsible for ensuring that `unit_normal` is a unit vector.
     pub fn reflect(&self, unit_normal: &Self) -> Self {
         *self - (2.0 * self.dot(unit_normal) * *unit_normal)
+    }
+
+    // Refracts the ray whose *normalized* direction vector is `ray`.
+    // Callers are responsible for ensuring that `ray` and `normal` are *both* normalized.
+    // Ray travels from the first medium to the second medium (e.g. air to glass).
+    // `relative_refractive_index` = refractive index of first / refractive index of second.
+    pub fn refract(ray: &Self, normal: &Self, relative_refractive_index: f64) -> Self {
+        let cos_theta = -ray.dot(normal).min(1.0);
+        // Component of the refracted ray that is perpendicular to the normal.
+        let out_perpendicular = relative_refractive_index * (*ray + cos_theta * *normal);
+        // Component of the out ray that is parallel to the normal.
+        let out_parallel = -(1.0 - out_perpendicular.len_sq()).abs().sqrt() * *normal;
+        out_perpendicular + out_parallel
     }
 
     // Generates a unit 3D vector lying in the unit sphere. Uses rejection

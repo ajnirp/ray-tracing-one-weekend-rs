@@ -79,3 +79,29 @@ impl Material for Metal {
         }
     }
 }
+
+pub struct Dielectric {
+    // Refractive index in vacuum or air, or the ratio of the material's refractive index over
+    // the refractive index of the enclosing media
+    refractive_index: f64,
+}
+
+impl Dielectric {
+    pub fn new(refractive_index: f64) -> Self {
+        Self {
+            // Disallow negative values.
+            refractive_index: if refractive_index > 0.0 { refractive_index } else { 1.0 },
+        }
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+        let relative_refractive_index = if hit_record.front_face() { 1.0 / self.refractive_index } else { self.refractive_index };
+        let refracted = Vec3::refract(&ray.dir().unit_vec(), hit_record.normal(), relative_refractive_index);
+        Some(ScatterResult {
+            scattered: Ray::new(*hit_record.point(), refracted),
+            attenuation: Color::new(1.0, 1.0, 1.0),
+        })
+    }
+}

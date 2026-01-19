@@ -12,7 +12,10 @@ pub struct HitRecord {
     point: Vec3,
     normal: Vec3,
     t: f64,
+
+    // `true` only when the ray originates from outside the object.
     front_face: bool,
+
     material: Rc<dyn Material>,
 }
 
