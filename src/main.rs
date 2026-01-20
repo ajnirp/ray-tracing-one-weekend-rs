@@ -11,6 +11,7 @@ use crate::vec3::Vec3;
 use clap::Parser;
 
 use std::fs::File;
+use std::io::BufWriter;
 use std::rc::Rc;
 
 mod camera;
@@ -75,7 +76,8 @@ fn main() -> std::io::Result<()> {
     let args = Args::parse();
     println!("{:?}", args);
 
-    let mut file = File::create(args.out_file)?;
+    let file = File::create(args.out_file)?;
+    let mut file = BufWriter::new(file);
 
     let mut world = HittableList::new();
 

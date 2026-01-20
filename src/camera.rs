@@ -7,7 +7,7 @@ use crate::util::{degrees_to_radians, random};
 use crate::vec3::Vec3;
 
 use std::fs::File;
-use std::io::Write;
+use std::io::{BufWriter, Write};
 
 const MIN_T_TO_PREVENT_SHADOW_ACNE: f64 = 1e-3;
 
@@ -140,12 +140,12 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: &HittableList, file: &mut File) -> std::io::Result<()> {
+    pub fn render(&self, world: &HittableList, file: &mut BufWriter<File>) -> std::io::Result<()> {
         write!(file, "P3\n{} {}\n255\n", self.image_width, self.image_height)?;
 
         for row in 0..self.image_height {
             let scanlines_remaining = self.image_height - row;
-            if scanlines_remaining % 10u32 == 0 {
+            if scanlines_remaining % 10 == 0 {
                 eprintln!("Scanlines remaining: {}", self.image_height - row);
             }
             for col in 0..self.image_width {
