@@ -69,7 +69,9 @@ FC: no differences encountered
 
 TODO:
 
-* profile code w/ flame graph and determine bottlenecks. Maybe the random number generation?
-* pass a mutable reference to the RNG through the functions instead of initializing it inside the utility helper
-* figure out the improper image header issue
-* GPU rendering
+* Profile code w/ flame graph and determine bottlenecks. The flamegraph SVG has text that is cut off. Try the text output instead. Maybe the random number generation is the bottleneck after adding buffered writes?
+* Add a CameraOptions struct to simplify the process of initializing a camera. Right now there's a fairly long list of params to `Camera::new()`.
+* Pass a mutable reference to the RNG through the functions instead of initializing it inside the utility helper.
+* Make `image_width` an arg as well. And `aspect_ratio` can be a string that the program parses into a `<width, height>` pair.
+* Figure out the improper image header issue with ImageMagick.
+* GPU rendering!
