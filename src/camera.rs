@@ -6,6 +6,9 @@ use crate::ray::Ray;
 use crate::util::{degrees_to_radians, random};
 use crate::vec3::Vec3;
 
+use std::fs::File;
+use std::io::Write;
+
 const MIN_T_TO_PREVENT_SHADOW_ACNE: f64 = 1e-3;
 
 pub struct Camera {
@@ -137,8 +140,8 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: &HittableList) {
-        print!("P3\n{} {}\n255\n", self.image_width, self.image_height);
+    pub fn render(&self, world: &HittableList, file: &mut File) -> std::io::Result<()> {
+        write!(file, "P3\n{} {}\n255\n", self.image_width, self.image_height)?;
 
         for row in 0..self.image_height {
             let scanlines_remaining = self.image_height - row;
@@ -152,8 +155,11 @@ impl Camera {
                     pixel_color += self.compute_ray_color(&ray, 0, world);
                 }
                 pixel_color /= self.samples_per_pixel as f64;
-                print!("{}", color_to_string(&pixel_color));
+                let color_bytes = color_to_string(&pixel_color);
+                write!(file, "{} {} {}\n", color_bytes.r(), color_bytes.g(), color_bytes.b())?;
             }
         }
+
+        Ok(())
     }
 }

@@ -46,7 +46,15 @@ TotalMilliseconds : 1994344.6029
 
 # Misc
 
-To compare two PPM files:
+To convert a PPM to a PNG:
+
+```shell
+magick. img\a.ppm a.png
+```
+
+For some reason, using a path like `img\a.png` makes the command fail with an error about "improper image headers".
+
+To diff two PPM files:
 
 ```shell
 fc.exe img\a.ppm img\b.ppm
@@ -61,4 +69,7 @@ FC: no differences encountered
 
 TODO:
 
+* profile code w/ flame graph and determine bottlenecks. Maybe the random number generation?
 * pass a mutable reference to the RNG through the functions instead of initializing it inside the utility helper
+* figure out the improper image header issue
+* GPU rendering

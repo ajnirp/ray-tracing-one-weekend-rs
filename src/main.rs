@@ -10,6 +10,7 @@ use crate::vec3::Vec3;
 
 use clap::Parser;
 
+use std::fs::File;
 use std::rc::Rc;
 
 mod camera;
@@ -65,11 +66,16 @@ struct Args {
 
     #[arg(long, default_value_t = 50)]
     max_depth: u32,
+
+    #[arg(long, default_value_t = String::from("img\\a.ppm"))]
+    out_file: String,
 }
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let args = Args::parse();
     println!("{:?}", args);
+
+    let mut file = File::create(args.out_file)?;
 
     let mut world = HittableList::new();
 
@@ -116,15 +122,17 @@ fn main() {
     let samples_per_pixel = args.samples_per_pixel;
     let max_depth         = args.max_depth;
 
-    let vertical_fov_degrees     = 20.0;
+    let vertical_fov_degrees = 20.0;
     let look_from = Vec3::new(13.0,2.0,3.0);
-    let look_at   = Vec3::new(0.0,0.0,0.0);
-    let view_up      = Vec3::new(0.0,1.0,0.0);
+    let look_at  = Vec3::new(0.0,0.0,0.0);
+    let view_up  = Vec3::new(0.0,1.0,0.0);
 
     let defocus_angle_degrees = 0.6;
     let focus_distance    = 10.0;
 
     let camera = Camera::new(aspect_ratio, image_width, samples_per_pixel, max_depth, vertical_fov_degrees, &look_from, &look_at, &view_up, defocus_angle_degrees, focus_distance);
 
-    camera.render(&world);
+    camera.render(&world, &mut file)?;
+
+    Ok(())
 }
