@@ -93,6 +93,14 @@ impl Vec3 {
         }
     }
 
+    pub fn random_vec(each_min: f64, each_max: f64) -> Self {
+        Self {
+            x: random(each_min, each_max),
+            y: random(each_min, each_max),
+            z: random(each_min, each_max),
+        }
+    }
+
 }
 
 impl fmt::Display for Vec3 {
