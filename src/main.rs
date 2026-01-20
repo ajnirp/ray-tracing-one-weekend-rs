@@ -39,7 +39,8 @@ fn main() {
     let image_width = 400u32;
     let samples_per_pixel = 100u32;
     let max_depth = 50u32;
-    let camera = Camera::new(aspect_ratio, image_width, samples_per_pixel, max_depth);
+    let vertical_fov_degrees = 90.0;
+    let camera = Camera::new(aspect_ratio, image_width, samples_per_pixel, max_depth, vertical_fov_degrees);
 
     // Render!
     camera.render(&world);

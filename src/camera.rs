@@ -3,7 +3,7 @@ use crate::hit::Hit;
 use crate::hittable_list::HittableList;
 use crate::interval::Interval;
 use crate::ray::Ray;
-use crate::util::random;
+use crate::util::{degrees_to_radians, random};
 use crate::vec3::Vec3;
 
 const MIN_T_TO_PREVENT_SHADOW_ACNE: f64 = 1e-3;
@@ -40,11 +40,14 @@ fn sample_square() -> Vec3 {
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32, max_depth: u32) -> Self {
+    pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32, max_depth: u32, vertical_fov_degrees: f64) -> Self {
         let image_height = compute_image_height(image_width, aspect_ratio);
         
+        // Determine viewport dimensions
         let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let theta = degrees_to_radians(vertical_fov_degrees);
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * actual_aspect_ratio(image_width, image_height);
         let camera_center = Vec3::new(0.0, 0.0, 0.0);
 
