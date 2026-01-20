@@ -58,7 +58,7 @@ impl Vec3 {
     }
 
     // Generates a unit 3D vector lying in the unit sphere. Uses rejection
-    // sampling to ensure uniform sampling.
+    // sampling to ensure a uniform probability distribution.
     pub fn uniform_random_unit_vec() -> Self {
         loop {
             let result = Vec3::new(random(-1.0, 1.0), random(-1.0, 1.0), random(-1.0, 1.0));
@@ -66,6 +66,17 @@ impl Vec3 {
             // towards zero and then dividing by zero.
             if result.len_sq() > 1e-60 && result.len_sq() <= 1.0 {
                 return result / result.len();
+            }
+        }
+    }
+
+    // Generates a point lying inside a unit disk. Uses rejection sampling to
+    // ensure a uniform probability distribution.
+    pub fn uniform_random_in_unit_disk() -> Self {
+        loop {
+            let result = Vec3::new(random(-1.0, 1.0), random(-1.0, 1.0), 0.0);
+            if result.len_sq() < 1.0 {
+                return result;
             }
         }
     }
