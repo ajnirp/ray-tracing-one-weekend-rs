@@ -17,6 +17,11 @@ pub struct Camera {
     pixel_upper_left_loc: Vec3,
     samples_per_pixel: u32,
     max_depth: u32,  // guards against stack overflow from reflected rays
+
+    // Camera frame basis vectors.
+    u: Vec3,
+    v: Vec3,
+    w: Vec3,  // camera faces -w
 }
 
 // Computes the image height and ensures that it's at least 1.
@@ -40,40 +45,48 @@ fn sample_square() -> Vec3 {
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32, max_depth: u32, vertical_fov_degrees: f64) -> Self {
+    // view_up = the "up" vector as seen from the world frame
+    pub fn new(aspect_ratio: f64, image_width: u32, samples_per_pixel: u32, max_depth: u32, vertical_fov_degrees: f64, look_from: &Vec3, look_at: &Vec3, view_up: &Vec3) -> Self {
         let image_height = compute_image_height(image_width, aspect_ratio);
         
+        let camera_center  = *look_from;
+
         // Determine viewport dimensions
         let focal_length = 1.0;
         let theta = degrees_to_radians(vertical_fov_degrees);
         let h = (theta / 2.0).tan();
         let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * actual_aspect_ratio(image_width, image_height);
-        let camera_center = Vec3::new(0.0, 0.0, 0.0);
 
-        let center = Vec3::new(0.0, 0.0, 0.0);
+        // Unit basis vectors for the camera coordinate frame
+        let w = (*look_from - *look_at).unit_vec();  // vector going from `look_at` to `look_from`
+        let u = view_up.cross(&w).unit_vec();
+        let v = w.cross(&u);
 
         // Vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
+        let viewport_u = viewport_width * u;
+        let viewport_v = viewport_height *  -v;
 
         // Horizontal and vertical delta vectors from pixel to pixel
         let pixel_delta_u = viewport_u / (image_width as f64);  // horizontal / column
         let pixel_delta_v = viewport_v / (image_height as f64);  // vertical / row
 
         // Location of the upper left pixel
-        let viewport_upper_left = camera_center + Vec3::new(0.0, 0.0, -focal_length) - (viewport_u / 2.0) - (viewport_v / 2.0);
+        let viewport_upper_left = camera_center - (focal_length * w) - (viewport_u / 2.0) - (viewport_v / 2.0);
         let pixel_upper_left_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
         Self {
             image_width: image_width,
             image_height: image_height,
-            center: center,
+            center: camera_center,
             pixel_delta_u: pixel_delta_u,
             pixel_delta_v: pixel_delta_v,
             pixel_upper_left_loc: pixel_upper_left_loc,
             samples_per_pixel: samples_per_pixel,
             max_depth: max_depth,
+            u: u,
+            v: v,
+            w: w,
         }
     }
 

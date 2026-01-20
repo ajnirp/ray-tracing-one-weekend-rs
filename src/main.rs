@@ -39,8 +39,11 @@ fn main() {
     let image_width = 400u32;
     let samples_per_pixel = 100u32;
     let max_depth = 50u32;
-    let vertical_fov_degrees = 90.0;
-    let camera = Camera::new(aspect_ratio, image_width, samples_per_pixel, max_depth, vertical_fov_degrees);
+    let vertical_fov_degrees = 20.0;
+    let look_from = Vec3::new(-2.0, 2.0, 1.0);
+    let look_at = Vec3::new(0.0, 0.0, -1.0);
+    let view_up = Vec3::new(0.0, 1.0, 0.0);
+    let camera = Camera::new(aspect_ratio, image_width, samples_per_pixel, max_depth, vertical_fov_degrees, &look_from, &look_at, &view_up);
 
     // Render!
     camera.render(&world);

@@ -73,6 +73,15 @@ impl Vec3 {
     pub fn is_near_zero(&self) -> bool {
         self.x < NEAR_ZERO_TOLERANCE && self.y < NEAR_ZERO_TOLERANCE && self.z < NEAR_ZERO_TOLERANCE
     }
+
+    pub fn cross(&self, rhs: &Self) -> Self {
+        Self {
+            x: self.y*rhs.z - self.z*rhs.y,
+            y: self.z*rhs.x - self.x*rhs.z,
+            z: self.x*rhs.y - self.y*rhs.x,
+        }
+    }
+
 }
 
 impl fmt::Display for Vec3 {
