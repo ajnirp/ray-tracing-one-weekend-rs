@@ -8,22 +8,16 @@ cargo build --release
 
 # Run
 
-To run, don't run this
+To run:
 
 ```shell
-# .\target\release\ray-tracing.exe <-- BAD, don't do this. It sets the encoding to UTF-16
-```
-
-See [here](https://github.com/RayTracing/raytracing.github.io/discussions/1114#discussioncomment-8314508) for details. Instead, do this:
-
-```shell
-.\target\release\ray-tracing.exe | Set-Content img\a.ppm -encoding String
+.\target\release\ray-tracing.exe --samples-per-pixel=500 --max-depth=50 --out-file="img/a.ppm"
 ```
 
 To profile the runtime:
 
 ```shell
-Measure-Command { .\target\release\ray-tracing.exe | Set-Content img\a.ppm -encoding String }
+Measure-Command { .\target\release\ray-tracing.exe --samples-per-pixel=500 --max-depth=50 --out-file="img/a.ppm" }
 ```
 
 # Example run
@@ -75,3 +69,19 @@ TODO:
 * Make `image_width` an arg as well. And `aspect_ratio` can be a string that the program parses into a `<width, height>` pair.
 * Figure out the improper image header issue with ImageMagick.
 * GPU rendering!
+
+# Obsolete
+
+This section is preserves some solutions to problems I faced earlier.
+
+If the binary is set up to write pixels to stdout, then to run, don't run this
+
+```shell
+# .\target\release\ray-tracing.exe <-- BAD, don't do this. It sets the encoding to UTF-16
+```
+
+See [here](https://github.com/RayTracing/raytracing.github.io/discussions/1114#discussioncomment-8314508) for details. Instead, do this:
+
+```shell
+.\target\release\ray-tracing.exe | Set-Content img\a.ppm -encoding String
+```
