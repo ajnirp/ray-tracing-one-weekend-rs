@@ -5,7 +5,6 @@ pub fn degrees_to_radians(degrees: f64) -> f64 {
 }
 
 // Returns a random f64 in the range [0, 1)
-pub fn random(min: f64, max: f64) -> f64 {
-    let mut rng = rand::rng();
+pub fn random(min: f64, max: f64, rng: &mut rand::rngs::ThreadRng) -> f64 {
     rng.random_range(min..max)
 }

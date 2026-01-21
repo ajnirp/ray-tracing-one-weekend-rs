@@ -16,7 +16,7 @@ impl ScatterResult {
 
 // A trait for material types to implement.
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult>;
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord, rng: &mut rand::rngs::ThreadRng) -> Option<ScatterResult>;
 }
 
 pub struct Lambertian {
@@ -35,8 +35,8 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
-        let mut scatter_direction = *hit_record.normal() + Vec3::uniform_random_unit_vec();
+    fn scatter(&self, _: &Ray, hit_record: &HitRecord, rng: &mut rand::rngs::ThreadRng) -> Option<ScatterResult> {
+        let mut scatter_direction = *hit_record.normal() + Vec3::uniform_random_unit_vec(rng);
 
         // Catch degenerate scatter directions. These result from uniformly sampled random unit vectors
         // that exactly cancel out the normal unit vector at the hit point.
@@ -66,9 +66,9 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord, rng: &mut rand::rngs::ThreadRng) -> Option<ScatterResult> {
         let reflected = ray.dir().reflect(hit_record.normal());
-        let fuzzed = reflected.unit_vec() + (self.fuzz * Vec3::uniform_random_unit_vec());
+        let fuzzed = reflected.unit_vec() + (self.fuzz * Vec3::uniform_random_unit_vec(rng));
         let scattered = Ray::new(*hit_record.point(), fuzzed);
         if scattered.dir().dot(hit_record.normal()) > 0.0 {
             Some(ScatterResult {
@@ -104,7 +104,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord, rng: &mut rand::rngs::ThreadRng) -> Option<ScatterResult> {
         let relative_refractive_index = if hit_record.front_face() { 1.0 / self.refractive_index } else { self.refractive_index };
         let unit_direction = ray.dir().unit_vec();
         let cos_theta = -unit_direction.dot(hit_record.normal());
@@ -112,7 +112,7 @@ impl Material for Dielectric {
 
         let cannot_refract = relative_refractive_index * sin_theta > 1.0;
 
-        let direction = if cannot_refract || Dielectric::reflectance(cos_theta, relative_refractive_index) > random(0.0, 1.0) {
+        let direction = if cannot_refract || Dielectric::reflectance(cos_theta, relative_refractive_index) > random(0.0, 1.0, rng) {
             unit_direction.reflect(hit_record.normal())
         } else {
             Vec3::refract(&unit_direction, hit_record.normal(), relative_refractive_index)

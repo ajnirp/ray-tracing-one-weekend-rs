@@ -59,9 +59,9 @@ impl Vec3 {
 
     // Generates a unit 3D vector lying in the unit sphere. Uses rejection
     // sampling to ensure a uniform probability distribution.
-    pub fn uniform_random_unit_vec() -> Self {
+    pub fn uniform_random_unit_vec(rng: &mut rand::rngs::ThreadRng) -> Self {
         loop {
-            let result = Vec3::new(random(-1.0, 1.0), random(-1.0, 1.0), random(-1.0, 1.0));
+            let result = Vec3::new(random(-1.0, 1.0, rng), random(-1.0, 1.0, rng), random(-1.0, 1.0, rng));
             // Also reject vectors very close to the origin to prevent rounding
             // towards zero and then dividing by zero.
             if result.len_sq() > 1e-60 && result.len_sq() <= 1.0 {
@@ -72,9 +72,9 @@ impl Vec3 {
 
     // Generates a point lying inside a unit disk. Uses rejection sampling to
     // ensure a uniform probability distribution.
-    pub fn uniform_random_in_unit_disk() -> Self {
+    pub fn uniform_random_in_unit_disk(rng: &mut rand::rngs::ThreadRng) -> Self {
         loop {
-            let result = Vec3::new(random(-1.0, 1.0), random(-1.0, 1.0), 0.0);
+            let result = Vec3::new(random(-1.0, 1.0, rng), random(-1.0, 1.0, rng), 0.0);
             if result.len_sq() < 1.0 {
                 return result;
             }
@@ -93,11 +93,11 @@ impl Vec3 {
         }
     }
 
-    pub fn random_vec(each_min: f64, each_max: f64) -> Self {
+    pub fn random_vec(each_min: f64, each_max: f64, rng: &mut rand::rngs::ThreadRng) -> Self {
         Self {
-            x: random(each_min, each_max),
-            y: random(each_min, each_max),
-            z: random(each_min, each_max),
+            x: random(each_min, each_max, rng),
+            y: random(each_min, each_max, rng),
+            z: random(each_min, each_max, rng),
         }
     }
 

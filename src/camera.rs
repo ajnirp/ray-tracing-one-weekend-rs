@@ -42,8 +42,8 @@ fn actual_aspect_ratio(image_width: u32, image_height: u32) -> f64 {
 }
 
 // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
-fn sample_square() -> Vec3 {
-    Vec3::new(random(-0.5, 0.5), random(-0.5, 0.5), 0.0)
+fn sample_square(rng: &mut rand::rngs::ThreadRng) -> Vec3 {
+    Vec3::new(random(-0.5, 0.5, rng), random(-0.5, 0.5, rng), 0.0)
 }
 
 impl Camera {
@@ -99,34 +99,34 @@ impl Camera {
         }
     }
 
-    fn sample_from_defocus_disk(&self) -> Vec3 {
-        let point = Vec3::uniform_random_in_unit_disk();
+    fn sample_from_defocus_disk(&self, rng: &mut rand::rngs::ThreadRng) -> Vec3 {
+        let point = Vec3::uniform_random_in_unit_disk(rng);
         self.center + (point.x() * self.defocus_disk_u) + (point.y() * self.defocus_disk_v)
     }
 
     // Constructs a camera ray originating from a random point on the defocus disk and
     // directed at a randomly sampled point around the pixel location (col, row).
-    fn get_ray(&self, row: u32, col: u32) -> Ray {
-        let offset = sample_square();
+    fn get_ray(&self, row: u32, col: u32, rng: &mut rand::rngs::ThreadRng) -> Ray {
+        let offset = sample_square(rng);
         let row = row as f64;
         let col = col as f64;
-        let ray_origin = if self.defocus_angle_degrees <= 0.0 { self.center } else { self.sample_from_defocus_disk() };
+        let ray_origin = if self.defocus_angle_degrees <= 0.0 { self.center } else { self.sample_from_defocus_disk(rng) };
         let pixel_sample = self.pixel_upper_left_loc + ((col + offset.x()) * self.pixel_delta_u) + ((row + offset.y()) * (self.pixel_delta_v));
         Ray::new(ray_origin, pixel_sample - ray_origin)
     }
 
     // Computes the color produced by a ray hitting the world. If it doesn't, just
     // render the background.
-    fn compute_ray_color(&self, ray: &Ray, depth: u32, world: &HittableList) -> Color {
+    fn compute_ray_color(&self, ray: &Ray, depth: u32, world: &HittableList, rng: &mut rand::rngs::ThreadRng) -> Color {
         if depth == self.max_depth {
             return Color::new(0.0, 0.0, 0.0);
         }
         match world.hit(&ray, &Interval::new(MIN_T_TO_PREVENT_SHADOW_ACNE, f64::MAX)) {
             Some(hit_record) => {
-                let scatter_result = hit_record.material().scatter(&ray, &hit_record);
+                let scatter_result = hit_record.material().scatter(&ray, &hit_record, rng);
                 match scatter_result {
                     Some(scatter_result) => {
-                        let color_from_scattered_ray = self.compute_ray_color(scatter_result.scattered(), depth+1, world);
+                        let color_from_scattered_ray = self.compute_ray_color(scatter_result.scattered(), depth+1, world, rng);
                         *scatter_result.attenuation() * color_from_scattered_ray
                     },
                     None => Color::new(0.0, 0.0, 0.0),
@@ -140,7 +140,7 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: &HittableList, file: &mut BufWriter<File>) -> std::io::Result<()> {
+    pub fn render(&self, world: &HittableList, file: &mut BufWriter<File>, rng: &mut rand::rngs::ThreadRng) -> std::io::Result<()> {
         write!(file, "P3\n{} {}\n255\n", self.image_width, self.image_height)?;
 
         for row in 0..self.image_height {
@@ -151,8 +151,8 @@ impl Camera {
             for col in 0..self.image_width {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
-                    let ray = self.get_ray(row, col);
-                    pixel_color += self.compute_ray_color(&ray, 0, world);
+                    let ray = self.get_ray(row, col, rng);
+                    pixel_color += self.compute_ray_color(&ray, 0, world, rng);
                 }
                 pixel_color /= self.samples_per_pixel as f64;
                 let color_bytes = color_to_string(&pixel_color);

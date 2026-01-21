@@ -1,4 +1,5 @@
 // See the README for how to build and run
+// TODO: Measure-Command { .\target\release\ray-tracing.exe --samples-per-pixel=500 | Set-Content img\a.ppm -encoding String }
 
 use crate::camera::Camera;
 use crate::color::Color;
@@ -76,6 +77,8 @@ fn main() -> std::io::Result<()> {
     let args = Args::parse();
     println!("{:?}", args);
 
+    let mut rng = rand::rng();
+
     let file = File::create(args.out_file)?;
     let mut file = BufWriter::new(file);
 
@@ -86,18 +89,18 @@ fn main() -> std::io::Result<()> {
 
     for a in -11..11 {
         for b in -11..11 {
-            let center = Vec3::new((a as f64) + 0.9 * random(0.0, 1.0), 0.2, (b as f64) + 0.9 * random(0.0, 1.0));
+            let center = Vec3::new((a as f64) + 0.9 * random(0.0, 1.0, &mut rng), 0.2, (b as f64) + 0.9 * random(0.0, 1.0, &mut rng));
             if (center - Vec3::new(4.0, 0.2, 0.0)).len() > 0.9 {
-                let choose_material = random(0.0, 1.0);
+                let choose_material = random(0.0, 1.0, &mut rng);
                 match choose_material {
                     0.0..0.8 => {
-                        let albedo = Color::random_vec(0.0, 1.0) * Color::random_vec(0.0, 1.0);
+                        let albedo = Color::random_vec(0.0, 1.0, &mut rng) * Color::random_vec(0.0, 1.0, &mut rng);
                         let sphere_material = Rc::new(Lambertian::new(albedo));
                         world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                     },
                     0.8..0.95 => {
-                        let albedo = Color::random_vec(0.5, 1.0);
-                        let fuzz = random(0.0, 0.5);
+                        let albedo = Color::random_vec(0.5, 1.0, &mut rng);
+                        let fuzz = random(0.0, 0.5, &mut rng);
                         let sphere_material = Rc::new(Metal::new(albedo, fuzz));
                         world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                     },
@@ -134,7 +137,7 @@ fn main() -> std::io::Result<()> {
 
     let camera = Camera::new(aspect_ratio, image_width, samples_per_pixel, max_depth, vertical_fov_degrees, &look_from, &look_at, &view_up, defocus_angle_degrees, focus_distance);
 
-    camera.render(&world, &mut file)?;
+    camera.render(&world, &mut file, &mut rng)?;
 
     Ok(())
 }
