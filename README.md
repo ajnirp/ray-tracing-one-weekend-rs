@@ -11,13 +11,13 @@ cargo build --release
 To run:
 
 ```shell
-.\target\release\ray-tracing.exe --samples-per-pixel=500 --max-depth=50 --out-file="img/a.ppm"
+.\target\release\ray-tracing.exe --image-width=400 --aspect-ratio="16,9" --samples-per-pixel=10 --max-depth=50 --out-file="img/a.ppm"
 ```
 
-To profile the runtime:
+To profile the running time:
 
 ```shell
-Measure-Command { .\target\release\ray-tracing.exe --samples-per-pixel=500 --max-depth=50 --out-file="img/a.ppm" }
+Measure-Command { .\target\release\ray-tracing.exe --image-width=400 --aspect-ratio="16,9" --samples-per-pixel=10 --max-depth=50 --out-file="img/a.ppm" }
 ```
 
 # Example run
@@ -65,8 +65,6 @@ TODO:
 
 * Profile code w/ flame graph and determine bottlenecks. The flamegraph SVG has text that is cut off. Try the text output instead. Maybe the random number generation is the bottleneck after adding buffered writes?
 * Add a CameraOptions struct to simplify the process of initializing a camera. Right now there's a fairly long list of params to `Camera::new()`.
-* Pass a mutable reference to the RNG through the functions instead of initializing it inside the utility helper.
-* Make `image_width` an arg as well. And `aspect_ratio` can be a string that the program parses into a `<width, height>` pair.
 * Figure out the improper image header issue with ImageMagick.
 * GPU rendering!
 

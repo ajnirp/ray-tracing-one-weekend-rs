@@ -1,18 +1,17 @@
 // See the README for how to build and run
-// TODO: Measure-Command { .\target\release\ray-tracing.exe --samples-per-pixel=500 | Set-Content img\a.ppm -encoding String }
 
 use crate::camera::Camera;
 use crate::color::Color;
 use crate::hittable_list::HittableList;
 use crate::material::{Dielectric, Lambertian, Metal};
 use crate::sphere::Sphere;
-use crate::util::random;
+use crate::util::{parse_aspect_ratio, random};
 use crate::vec3::Vec3;
 
 use clap::Parser;
 
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, Error, ErrorKind, Result};
 use std::rc::Rc;
 
 mod camera;
@@ -63,6 +62,12 @@ mod vec3;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
+    #[arg(long, default_value_t = 1200)]
+    image_width: u32,
+
+    #[arg(long, default_value_t = String::from("16,9"))]
+    aspect_ratio: String,
+
     #[arg(long, default_value_t = 20)]
     samples_per_pixel: u32,
 
@@ -73,7 +78,7 @@ struct Args {
     out_file: String,
 }
 
-fn main() -> std::io::Result<()> {
+fn main() -> Result<()> {
     let args = Args::parse();
     println!("{:?}", args);
 
@@ -122,8 +127,10 @@ fn main() -> std::io::Result<()> {
     let material3 = Rc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
     world.add(Rc::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, material3)));
     
-    let aspect_ratio      = 16.0 / 9.0;
-    let image_width       = 1200u32;
+    let (requested_width, requested_height) = parse_aspect_ratio(&args.aspect_ratio).map_err(|s: &str| Error::new(ErrorKind::Other, s))?;
+
+    let aspect_ratio      = requested_width / requested_height;
+    let image_width       = args.image_width;
     let samples_per_pixel = args.samples_per_pixel;
     let max_depth         = args.max_depth;
 
